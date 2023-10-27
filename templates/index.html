@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>short.ly | Shorten URL</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-300 p-6">
+    <div>
+      <div class="bg-gray-100 p-4 max-w-md rounded-lg mx-auto shadow-2xl">
+        <h1 class="text-2xl text-center font-bold text-gray-500">short.ly</h1>
+        <p class="text-center font-semibold text-gray-600 mt-2 mb-6">
+          make your url short
+        </p>
+        <form action="/shorten" method="post" onsubmit="submitForm(event)">
+          <div class="mb-4">
+            <label
+              class="block text-gray-600 text-sm font-bold mb-2"
+              for="long_url"
+              >Long URL:</label
+            >
+            <textarea
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="long_url"
+              name="long_url"
+              type="text"
+              required
+            ></textarea>
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-gray-600 text-sm font-bold mb-2"
+              for="title"
+              >Endpoint:</label
+            >
+            <input
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="title"
+              name="title"
+              type="text"
+            />
+          </div>
+          <button
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="submit"
+          >
+            Shorten
+          </button>
+        </form>
+
+        <div
+          id="shortened-url"
+          class="mt-4 text-green-600 text-center font-bold"
+        ></div>
+      </div>
+
+      <div class="max-w-md mx-auto flex justify-between items-center gap-4">
+        <a
+          href="search_terms"
+          class="bg-gray-100 py-2 px-4 rounded-lg mx-auto shadow-2xl my-6"
+        >
+          <span>Search 🔎</span>
+        </a>
+
+        <a
+          href="popular_urls"
+          class="bg-gray-100 py-2 px-4 rounded-lg mx-auto shadow-2xl my-6"
+        >
+          Popular Urls
+        </a>
+
+      </div>
+    </div>
+
+    <script>
+      function submitForm(event) {
+        event.preventDefault();
+
+        // Submit the form data via AJAX
+        var form = event.target;
+        var formData = new FormData(form);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/shorten");
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            var shortenedUrl = response.short_url;
+
+            var baseUrl = window.location.origin; // Get the current base URL
+            document.getElementById("shortened-url").textContent =
+              baseUrl + "/" + shortenedUrl;
+          }
+        };
+        xhr.send(formData);
+      }
+    </script>
+  </body>
+</html>

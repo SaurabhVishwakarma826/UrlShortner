@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Terms</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-300 p-6">
+    <div>
+      <div class="bg-gray-100 p-4 max-w-md rounded-lg mx-auto shadow-2xl">
+        <h1 class="text-2xl text-center font-bold text-gray-500">short.ly</h1>
+        <p class="text-center font-semibold text-gray-600 mt-2 mb-6">
+          find your short links
+        </p>
+
+        <div id="search-results" class="mt-4">
+          <div class="overflow-x-auto">
+            <table
+              class="min-w-full bg-white border border-gray-300 rounded-lg"
+            >
+              <thead class="bg-gray-100 border-b">
+                <tr>
+                  <th class="py-2 px-4 border-r">Title</th>
+                  <th class="py-2 px-4 border-r">Short URL</th>
+                  <th class="py-2 px-4">Long URL</th>
+                  <th class="py-2 px-4"></th>
+                </tr>
+              </thead>
+              <tbody id="results-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+     <div class="max-w-md mx-auto flex justify-between items-center gap-4">
+        <a
+          href="/"
+          class="bg-gray-100 py-2 px-4 rounded-lg mx-auto shadow-2xl my-6"
+        >
+          <span>home 🏠</span>
+        </a>
+
+        <a
+          href="search_terms"
+          class="bg-gray-100 py-2 px-4 rounded-lg mx-auto shadow-2xl my-6"
+        >
+          Search
+        </a>
+
+      </div>
+    </div>
+
+    <script>
+      submitForm();
+
+      function submitForm() {
+
+        var baseUrl = window.location.origin;
+
+        // Submit the form data via AJAX
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/popular_url");
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            var results = response.results;
+            console.log(results)
+
+            var resultsTable = document.getElementById("results-table");
+            resultsTable.innerHTML = "";
+
+            if (results.length === 0) {
+              resultsTable.innerHTML =
+                '<tr><td colspan="4" class="text-center py-4">No results found.</td></tr>';
+            } else {
+              results.forEach(function (result) {
+                var row = document.createElement("tr");
+
+                var titleCell = document.createElement("td");
+                titleCell.textContent = result.title;
+                titleCell.classList.add("py-2", "px-4", "border-r");
+                row.appendChild(titleCell);
+
+                var shortUrlCell = document.createElement("td");
+                shortUrlCell.textContent = `${baseUrl}/${result.short_url}`;
+                shortUrlCell.classList.add("py-2", "px-4", "border-r");
+                row.appendChild(shortUrlCell);
+
+                var longUrlCell = document.createElement("td");
+                longUrlCell.classList.add("py-2", "px-4");
+                var longUrlDiv = document.createElement("div");
+                longUrlDiv.classList.add("long-url");
+                longUrlDiv.textContent = result.long_url;
+                longUrlCell.appendChild(longUrlDiv);
+                row.appendChild(longUrlCell);
+
+                var copyCell = document.createElement("td");
+                var copyButton = document.createElement("button");
+                copyButton.textContent = "Copy";
+                copyButton.classList.add(
+                  "bg-blue-500",
+                  "hover:bg-blue-700",
+                  "text-white",
+                  "font-bold",
+                  "py-2",
+                  "px-4",
+                  "rounded",
+                  "focus:outline-none",
+                  "focus:shadow-outline"
+                );
+                copyButton.onclick = function () {
+                  copyToClipboard(`${baseUrl}/${result.short_url}`);
+                };
+                copyCell.appendChild(copyButton);
+                row.appendChild(copyCell);
+
+                resultsTable.appendChild(row);
+              });
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      function copyToClipboard(text) {
+        var dummyElement = document.createElement("textarea");
+        dummyElement.value = text;
+        dummyElement.setAttribute("readonly", "");
+        dummyElement.style.position = "absolute";
+        dummyElement.style.left = "-9999px";
+        document.body.appendChild(dummyElement);
+        var selected =
+          document.getSelection().rangeCount > 0 // Check if there is any content selected previously
+            ? document.getSelection().getRangeAt(0) // Store selection if found
+            : false; // Mark as false to know no selection existed before
+        dummyElement.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummyElement);
+        if (selected) {
+          // If a selection existed before copying
+          document.getSelection().removeAllRanges(); // Unselect everything on the HTML document
+          document.getSelection().addRange(selected); // Restore the original selection
+        }
+      }
+    </script>
+  </body>
+</html>
